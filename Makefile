@@ -1,33 +1,30 @@
-# Compiler and flags
-CXX = gcc
-CXXFLAGS = -Wall -Wextra -std=c++17
+# C++ Compiler and C++ Compiler Flags
+CXX=g++
+CXXFLAGS=-Wall -Wextra -std=c++23
 
 # Directories
-SRCDIR = src
-OBJDIR = obj
-INCDIR = $(SRCDIR)
+SRC_DIR=src
+OBJ_DIR=obj
 
-# SFML paths (change these to match your SFML installation)
-SFML_LIBDIR = /usr/lib
-SFML_INCDIR = /usr/include
-
-# SFML libraries (you can add more if needed)
-SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
+# SFML Flags
+SFML_FLAGS=-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
 
 # Files
-SOURCES = $(wildcard $(SRCDIR)/*.cpp)
-OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SOURCES))
-EXECUTABLE = scrabble
+SOURCES=$(wildcard $(SRC_DIR)/*.cpp)
+OBJECTS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
+EXECUTABLE=scrabble
 
 # Rules
 all: $(EXECUTABLE)
 
+# Build target
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $@ -L$(SFML_LIBDIR) $(SFML_LIBS)
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(EXECUTABLE) $(SFML_FLAGS)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	@mkdir -p $(OBJDIR)
-	$(CXX) $(CXXFLAGS) -I$(INCDIR) -I$(SFML_INCDIR) -c $< -o $@
+# Rule to compile source files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean up
 clean:

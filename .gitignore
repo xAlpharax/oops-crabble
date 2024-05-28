@@ -1,10 +1,22 @@
 #####################################
 
+# EXTRA -> Executable
+scrabble
+
 # EXTRA -> Word Lists
 *.txt
 
 # EXTRA -> Font Files
 *.ttf
+
+# EXTRA -> Image Files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.ico
+*.svg
 
 #####################################
 
