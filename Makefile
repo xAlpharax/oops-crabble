@@ -28,7 +28,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 # Clean up
 clean:
-	rm -f $(OBJDIR)/*.o $(EXECUTABLE)
+	rm -f $(OBJ_DIR)/*.o $(EXECUTABLE)
 
 # Phony targets
 .PHONY: all clean
