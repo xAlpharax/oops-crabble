@@ -1,18 +1,33 @@
-// Fisier: TablaScrabble.h
-#pragma once
+#ifndef TABLA_SCRABBLE_H
+#define TABLA_SCRABBLE_H
+
+#include <vector>
+#include <unordered_set>
+#include <string>
+#include <SFML/Graphics.hpp>
 #include "Celula.h"
 #include "Cuvant.h"
-#include <vector>
 
-class Cuvant; // Forward declaration pentru a putea folosi clasa Cuvant
-
-class TablaScrabble {    // Clasa TablaScrabble -> Responsabila pentru gestionarea tablei de joc si validarea si plasarea cuvintelor
-private:
-    std::vector<std::vector<Celula>> tabla;     // Vector bidimensional de instante ale clasei Celula, ce reprezinta tabla de joc
-    std::vector<Cuvant> cuvinteJucate;          // Vector cu instante ale clasei Cuvant, ce reprezinta lista cuvintelor deja jucate
-
+class TablaScrabble {
 public:
     TablaScrabble();
-    bool verificaCuvant(Cuvant cuvant);         // Verifica daca un cuvant este valid si poate fi plasat pe tabla
-    void adaugaCuvant(Cuvant cuvant);           // Adauga un cuvant valid pe tabla si actualizeaza scorul
+    bool adaugaCuvant(const Cuvant& cuvant);
+    bool verificaCuvant(const Cuvant& cuvant) const;
+    void deseneaza(sf::RenderWindow& window) const;
+    bool isCellEmpty(int x, int y) const;
+    char getCellLetter(int x, int y) const;
+    const Celula& getCelula(int x, int y) const;
+    bool isBoardEmpty() const;
+    const std::unordered_set<std::string>& getSet() const { return cuvinteJucate; }
+
+    // --- NEW: Method to clear a cell ---
+    void clearCell(int x, int y);
+
+private:
+    std::vector<std::vector<Celula>> tabla;
+    std::unordered_set<std::string> cuvinteJucate;
+    std::unordered_set<std::string> loadDictionary(const std::string& filename);
+    std::string toUpper(const std::string& s) const;
 };
+
+#endif

@@ -1,12 +1,33 @@
-// Fisier: Celula.h
-#pragma once
+#ifndef CELULA_H
+#define CELULA_H
 
-class Celula { // Clasa Celula -> Reprezinta o celula a tablei de joc
-private:
-    int efectSpecial;          // Efectul special al celulei (dublu/triplu literă/cuvant)
-    char litera;               // Litera prezenta in celula
+#include <SFML/Graphics.hpp>
+#include <string>
 
-public:
-    Celula();
-    void aplicaEfect();        // Aplica efectul special
+enum class EfectSpecial {
+    Normal,
+    DubluLitera,
+    TripluLitera,
+    DubluCuvant,
+    TripluCuvant
 };
+
+class Celula {
+public:
+    Celula(EfectSpecial efect = EfectSpecial::Normal, char litera = ' ');
+
+    EfectSpecial getEfectSpecial() const;
+    char getLitera() const;
+    void setLitera(char litera);
+    void setEfectSpecial(EfectSpecial efect);
+    bool esteGoala() const;
+    // Remove deseneaza from Celula
+    // void deseneaza(sf::RenderWindow& window, int x, int y, int cellSize) const;
+
+private:
+    EfectSpecial efectSpecial;
+    char litera;
+    // REMOVE: mutable sf::RectangleShape shape;
+};
+
+#endif

@@ -1,13 +1,21 @@
-// Fisier: PungaLitere.h
-#pragma once
+#ifndef PUNGA_LITERE_H
+#define PUNGA_LITERE_H
+
 #include <vector>
+#include <random>
 
-class PungaLitere {                 // Clasa PungaLitere -> Responsabila pentru distribuirea si gestionarea literelor disponibile
-private:
-    std::vector<char> litere;                            // Vector cu litere disponibile
-
+class PungaLitere {
 public:
     PungaLitere();
-    void distribuieLitere(std::vector<char>& suport);    // Distribuie litere catre un jucator
-    void inlocuiesteLitere(std::vector<char>& suport);   // Inlocuieste literele unui jucator
+
+    void distribuieLitere(std::vector<char>& suport, int numarLitere);
+    void inlocuiesteLitere(std::vector<char>& suport);
+    bool isEmpty() const;
+    int getNumarLitereRamase() const;
+
+private:
+    std::vector<char> litere;
+    std::mt19937 generator; // Random number generator
 };
+
+#endif

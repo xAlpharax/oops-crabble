@@ -1,18 +1,32 @@
-// Fisier: Cuvant.h
-#pragma once
-#include "TablaScrabble.h"
+#ifndef CUVANT_H
+#define CUVANT_H
+
+#include <vector>
 #include <string>
 
-class TablaScrabble; // Forward declaration pentru a putea folosi clasa TablaScrabble
+class TablaScrabble; // Forward declaration
 
-class Cuvant {                                                      // Clasa Cuvant -> Reprezinta un cuvant jucat pe tabla
-private:
-    std::string litere;                                                             // Lista literelor ce formeaza cuvantul
-    std::pair<int, int> pozitie;                                                    // Coordonatele de start pe tabla
-    std::string directie;                                                           // Orientarea cuvantului (orizontal sau vertical)
-
-public:
-    Cuvant(std::string litere, std::pair<int, int> pozitie, std::string directie);
-    bool verificaValiditate(TablaScrabble& tabla);                                  // Verifica validitatea cuvantului
-    int calculeazaScor(TablaScrabble& tabla);                                       // Calculeaza scorul pentru cuvantul jucat
+enum class Directie {
+    Orizontal,
+    Vertical
 };
+
+class Cuvant {
+public:
+    Cuvant(const std::string& cuvant, int x, int y, Directie directie);
+
+    const std::string& getCuvant() const;
+    int getX() const;
+    int getY() const;
+    Directie getDirectie() const;
+    bool verificaValiditate(const TablaScrabble& tabla) const; // Added tabla parameter
+    int calculeazaScor(const TablaScrabble& tabla) const;
+
+private:
+    std::string litere;
+    int x;
+    int y;
+    Directie directie;
+};
+
+#endif
