@@ -93,6 +93,12 @@ std::unordered_set<std::string> TablaScrabble::loadDictionary(const std::string&
     return dictionary;
 }
 
+void TablaScrabble::placeLetter(int x, int y, char letter) {
+    if (x >= 0 && x < 15 && y >= 0 && y < 15) {
+        tabla[y][x].setLitera(letter);
+    }
+}
+
 bool TablaScrabble::adaugaCuvant(const Cuvant& cuvant) {
     if (!verificaCuvant(cuvant)) {
         return false;
@@ -121,72 +127,22 @@ bool TablaScrabble::isBoardEmpty() const {
     }
     return true;
 }
+
 bool TablaScrabble::verificaCuvant(const Cuvant& cuvant) const {
-    // 1. Check if the main word is in the dictionary.
+    // Check if the word is in the dictionary
     std::string upperCuvant = toUpper(cuvant.getCuvant());
     if (cuvinteJucate.find(upperCuvant) == cuvinteJucate.end()) {
         std::cerr << "Cuvantul '" << cuvant.getCuvant() << "' nu este in dictionar." << std::endl;
         return false;
     }
 
-    // 2. Check board-specific rules (Cuvant's internal checks).
+    // Check board placement rules
     if (!cuvant.verificaValiditate(*this)) {
-        std::cerr << "Plasare invalida (reguli interne ale cuvantului)." << std::endl;
+        std::cerr << "Plasare invalida." << std::endl;
         return false;
     }
 
-    // --- Use a temporary board for checking ---
-    std::vector<std::vector<Celula>> tempTabla = tabla;
-
-    // --- TEMPORARILY place letters on the temporary board for cross-word checking ---
-    int length = cuvant.getCuvant().length();
-    for (int i = 0; i < length; ++i) {
-        int x = cuvant.getX();
-        int y = cuvant.getY();
-        if (cuvant.getDirectie() == Directie::Orizontal) {
-            x += i;
-        } else {
-            y += i;
-        }
-        // Place on the temporary board
-        tempTabla[y][x].setLitera(cuvant.getCuvant()[i]);
-    }
-
-    // 3. Check for cross-words (using the temporary board)
-    bool validCrossWords = true;
-    for (int i = 0; i < length; ++i) {
-        int currentX = (cuvant.getDirectie() == Directie::Orizontal) ? cuvant.getX() + i : cuvant.getX();
-        int currentY = (cuvant.getDirectie() == Directie::Vertical) ? cuvant.getY() + i : cuvant.getY();
-
-        // Check BOTH horizontal and vertical cross-words for EACH letter
-        std::string horizontalWord;
-        int startX = currentX;
-        while (startX > 0 && tempTabla[currentY][startX - 1].getLitera() != ' ') startX--;
-        while (startX < 15 && tempTabla[currentY][startX].getLitera() != ' ') {
-            horizontalWord += tempTabla[currentY][startX].getLitera();
-            startX++;
-        }
-        if (horizontalWord.length() > 1 && cuvinteJucate.find(toUpper(horizontalWord)) == cuvinteJucate.end()) {
-            std::cerr << "Cuvantul orizontal format '" << horizontalWord << "' nu este valid." << std::endl;
-            validCrossWords = false;
-            break;
-        }
-
-        std::string verticalWord;
-        int startY = currentY;
-        while (startY > 0 && tempTabla[startY - 1][currentX].getLitera() != ' ') startY--;
-        while (startY < 15 && tempTabla[startY][currentX].getLitera() != ' ') {
-            verticalWord += tempTabla[startY][currentX].getLitera();
-            startY++;
-        }
-        if (verticalWord.length() > 1 && cuvinteJucate.find(toUpper(verticalWord)) == cuvinteJucate.end()) {
-            std::cerr << "Cuvantul vertical format '" << verticalWord << "' nu este valid." << std::endl;
-            validCrossWords = false;
-            break;
-        }
-    }
-
-    return validCrossWords;
+    return true;
 }
 
 void TablaScrabble::deseneaza(sf::RenderWindow& window) const {

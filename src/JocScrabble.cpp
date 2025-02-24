@@ -59,74 +59,66 @@ void JocScrabble::nextTurn() {
 }
 
 void JocScrabble::mutaJucator() {
-	inputCuvant.clear(); // Clear any previous input
-    // Build the word from the placed tiles.
-    std::string wordString;
-    for (const auto& pos : placedTilesThisTurn) {
-        wordString += tabla.getCellLetter(pos.first, pos.second);
-    }
-
-    if (wordString.empty()) {
+    if (placedTilesThisTurn.empty()) {
         std::cout << "No tiles placed." << std::endl;
         return;
     }
 
-    // Determine direction and starting position *from placedTilesThisTurn*.
-    int startX = -1, startY = -1;
-    Directie direction = Directie::Orizontal; // Default to horizontal
-
-    if (placedTilesThisTurn.empty()) {
-        std::cout << "No new tiles placed this turn." << std::endl;
-        return; // Or handle as an error/reset
+    // Determine word direction
+    bool isHorizontal = true;
+    int firstY = placedTilesThisTurn[0].second;
+    for (const auto& pos : placedTilesThisTurn) {
+        if (pos.second != firstY) {
+            isHorizontal = false;
+            break;
+        }
     }
 
-    startX = placedTilesThisTurn[0].first;
-    startY = placedTilesThisTurn[0].second;
+    // Sort placed tiles by position
+    std::sort(placedTilesThisTurn.begin(), placedTilesThisTurn.end(),
+        [isHorizontal](const auto& a, const auto& b) {
+            return isHorizontal ? a.first < b.first : a.second < b.second;
+        });
 
-    if (placedTilesThisTurn.size() > 1) {
-        // Determine direction based on placed tiles
-        bool sameRow = true;
-        bool sameCol = true;
-        for (size_t i = 1; i < placedTilesThisTurn.size(); ++i) {
-            if (placedTilesThisTurn[i].second != startY) sameRow = false;
-            if (placedTilesThisTurn[i].first != startX) sameCol = false;
+    // Build word
+    std::string wordString;
+    int startX = placedTilesThisTurn[0].first;
+    int startY = placedTilesThisTurn[0].second;
+
+    if (isHorizontal) {
+        for (int x = startX; x < 15; x++) {
+            char letter = tabla.getCellLetter(x, startY);
+            if (letter == ' ') break;
+            wordString += letter;
         }
-
-        if (!sameRow && !sameCol) {
-            std::cout << "Invalid tile placement (not in a line)." << std::endl;
-            clearBoardAndTiles();
-            return;
+    } else {
+        for (int y = startY; y < 15; y++) {
+            char letter = tabla.getCellLetter(startX, y);
+            if (letter == ' ') break;
+            wordString += letter;
         }
-
-        if (sameCol) direction = Directie::Vertical;
     }
 
-
-    Cuvant cuvant(wordString, startX, startY, direction);
+    Cuvant cuvant(wordString, startX, startY,
+                  isHorizontal ? Directie::Orizontal : Directie::Vertical);
 
     if (jucatori[jucatorCurent].joacaCuvant(cuvant, tabla)) {
-        std::cout << "Cuvant adaugat. Scorul: " << jucatori[jucatorCurent].getScor() << std::endl;
-        gameOver = allPlayersPassed();
-
-        // Remove tiles from player's hand (graphically and logically)
-        for (auto& pos : placedTilesThisTurn)
-        {
-            for(auto& tile : jucatori[jucatorCurent].getTiles())
-            {
-                if(tile.getLetter() == tabla.getCellLetter(pos.first, pos.second))
-                {
+        // Word is valid, update game state
+        for (auto& pos : placedTilesThisTurn) {
+            for (auto& tile : jucatori[jucatorCurent].getTiles()) {
+                if (tile.getLetter() == tabla.getCellLetter(pos.first, pos.second)) {
                     jucatori[jucatorCurent].removeTile(&tile);
-                    break; // Remove only one tile of this letter
+                    break;
                 }
             }
         }
-        punga.distribuieLitere(jucatori[jucatorCurent].getSuport(), wordString.length());
-		jucatori[jucatorCurent].initializeTiles(10, 600, tileSize);
-        nextTurn();
 
+        punga.distribuieLitere(jucatori[jucatorCurent].getSuport(), wordString.length());
+        jucatori[jucatorCurent].initializeTiles(10, 600, tileSize);
+        nextTurn();
     } else {
-        std::cout << "Plasare invalida." << std::endl;
-        clearBoardAndTiles(); // Reset if invalid
+        // Word is invalid, clear the board
+        clearBoardAndTiles();
     }
 }
 
@@ -316,15 +308,26 @@ void JocScrabble::handleMouseRelease(sf::Vector2f mousePos) {
     updateCurrentWordDisplay();
 }
 
-
 void JocScrabble::placeTileOnBoard(Tile* tile, int boardX, int boardY) {
-    // --- Only place if the cell is empty ---
     if (tabla.isCellEmpty(boardX, boardY)) {
-        tabla.adaugaCuvant(Cuvant(std::string(1, tile->getLetter()), boardX, boardY, Directie::Orizontal)); // Add to the board
-        tile->setPosition(boardX * tileSize, boardY * tileSize);
+        // Just place the letter without validation
+        tabla.placeLetter(boardX, boardY, tile->getLetter());
+        tile->setPosition(boardX * tile->getSize(), boardY * tile->getSize());
         tile->setDragging(false);
-        placedTilesThisTurn.emplace_back(boardX, boardY); // Track placed tile
-        inputCuvant += tile->getLetter(); // Add to inputCuvant for display purposes
+
+        bool alreadyPlaced = false;
+        for (const auto& pos : placedTilesThisTurn) {
+            if (pos.first == boardX && pos.second == boardY) {
+                alreadyPlaced = true;
+                break;
+            }
+        }
+
+        if (!alreadyPlaced) {
+            placedTilesThisTurn.emplace_back(boardX, boardY);
+        }
+
+        inputCuvant += tile->getLetter();
     }
 }
 

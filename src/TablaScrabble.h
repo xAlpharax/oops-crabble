@@ -23,6 +23,8 @@ public:
     // --- NEW: Method to clear a cell ---
     void clearCell(int x, int y);
 
+    void placeLetter(int x, int y, char letter);
+
 private:
     std::vector<std::vector<Celula>> tabla;
     std::unordered_set<std::string> cuvinteJucate;
