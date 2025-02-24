@@ -1,8 +1,7 @@
+// src/Celula.cpp
 #include "Celula.h"
 
-Celula::Celula(EfectSpecial efect, char litera) : efectSpecial(efect), litera(litera) {
-    // REMOVE: shape initialization
-}
+Celula::Celula(EfectSpecial efect, char litera) : efectSpecial(efect), litera(litera) {}
 
 EfectSpecial Celula::getEfectSpecial() const {
     return efectSpecial;
@@ -23,5 +22,3 @@ void Celula::setEfectSpecial(EfectSpecial efect) {
 bool Celula::esteGoala() const {
     return litera == ' ';
 }
-
-// REMOVE: deseneaza method

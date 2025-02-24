@@ -1,3 +1,4 @@
+// src/Cuvant.h
 #ifndef CUVANT_H
 #define CUVANT_H
 
@@ -19,7 +20,7 @@ public:
     int getX() const;
     int getY() const;
     Directie getDirectie() const;
-    bool verificaValiditate(const TablaScrabble& tabla) const; // Added tabla parameter
+    bool verificaValiditate(const TablaScrabble& tabla) const;
     int calculeazaScor(const TablaScrabble& tabla) const;
 
 private:
@@ -27,6 +28,7 @@ private:
     int x;
     int y;
     Directie directie;
+    int getValoareLitera(char litera) const;
 };
 
 #endif

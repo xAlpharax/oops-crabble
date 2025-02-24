@@ -1,9 +1,11 @@
+// src/Cuvant.cpp
 #include "Cuvant.h"
 #include "TablaScrabble.h"
 #include "Celula.h"
 #include <algorithm>
 #include <cctype>
 #include <locale>
+#include <iostream>
 
 Cuvant::Cuvant(const std::string& cuvant, int x, int y, Directie directie) :
     litere(cuvant), x(x), y(y), directie(directie) {}
@@ -26,98 +28,67 @@ Directie Cuvant::getDirectie() const {
 
 bool Cuvant::verificaValiditate(const TablaScrabble& tabla) const {
     int length = litere.length();
-    if (x < 0 || y < 0) return false;  //Must not be negative
+    if (x < 0 || y < 0) return false;  // Must not be negative
 
     // Check bounds based on direction.
-    if (directie == Directie::Orizontal && x + length > 15) return false;
-    if (directie == Directie::Vertical && y + length > 15) return false;
+    if (directie == Directie::Orizontal && x + length > TablaScrabble::BOARD_SIZE) return false;
+    if (directie == Directie::Vertical && y + length > TablaScrabble::BOARD_SIZE) return false;
 
-    bool connects = tabla.isBoardEmpty(); // If the board is empty, we don't need to connect.
+    bool connectsToExistingWord = tabla.isBoardEmpty(); // First word doesn't need to connect
 
-    // Check for overlap and collect newly formed words.
+    // Check for overlaps and connections
     for (int i = 0; i < length; ++i) {
         int currentX = (directie == Directie::Orizontal) ? x + i : x;
         int currentY = (directie == Directie::Vertical) ? y + i : y;
 
-        // Check if the cell is occupied by a *different* letter.
-        if (!tabla.isCellEmpty(currentX, currentY) &&
-            tabla.getCellLetter(currentX, currentY) != litere[i]) {
-            return false;
+        if (!tabla.isCellEmpty(currentX, currentY) && tabla.getCellLetter(currentX, currentY) != litere[i]) {
+            return false; // Overlap with a different letter
         }
-        // Check for adjacency to existing letters.
-        if (!connects)
-        {
-            if (!tabla.isCellEmpty(currentX, currentY))
-            {
-                connects = true; // It overlaps with existing letters
-            }
-            else
-            {
-                 // Check adjacent cells (up, down, left, right).
-                if (currentY > 0 && !tabla.isCellEmpty(currentX, currentY - 1)) connects = true;
-                if (currentY < 14 && !tabla.isCellEmpty(currentX, currentY + 1)) connects = true;
-                if (currentX > 0 && !tabla.isCellEmpty(currentX - 1, currentY)) connects = true;
-                if (currentX < 14 && !tabla.isCellEmpty(currentX + 1, currentY)) connects = true;
+
+        if (!connectsToExistingWord) {
+            if (!tabla.isCellEmpty(currentX, currentY)) {
+                connectsToExistingWord = true; // Overlaps with existing word
+            } else {
+                // Check adjacent cells for connections
+                if ((currentY > 0 && !tabla.isCellEmpty(currentX, currentY - 1)) ||
+                    (currentY < TablaScrabble::BOARD_SIZE - 1 && !tabla.isCellEmpty(currentX, currentY + 1)) ||
+                    (currentX > 0 && !tabla.isCellEmpty(currentX - 1, currentY)) ||
+                    (currentX < TablaScrabble::BOARD_SIZE - 1 && !tabla.isCellEmpty(currentX + 1, currentY))) {
+                    connectsToExistingWord = true;
+                }
             }
         }
     }
 
-    //The first word MUST go through the center
-    if(tabla.isBoardEmpty() && !connects)
-    {
+    // First word must cover the center cell
+    if (tabla.isBoardEmpty() && !connectsToExistingWord) {
         bool centerCovered = false;
-        for (int i = 0; i < length; i++)
-        {
+        for (int i = 0; i < length; ++i) {
             int currentX = (directie == Directie::Orizontal) ? x + i : x;
             int currentY = (directie == Directie::Vertical) ? y + i : y;
-            if (currentX == 7 && currentY == 7)
+            if (currentX == TablaScrabble::CENTER_CELL_X && currentY == TablaScrabble::CENTER_CELL_Y) {
                 centerCovered = true;
+                break;
+            }
         }
-        if(!centerCovered)
-            return false;
+        if (!centerCovered) return false;
     }
 
-    if (!connects) return false; // Must connect if not the first word.
+    if (!connectsToExistingWord && !tabla.isBoardEmpty()) return false; // Must connect to existing words
 
-    return true; // All checks passed.
+    return true;
 }
 
 int Cuvant::calculeazaScor(const TablaScrabble& tabla) const {
-  int scor = 0;
+    int scor = 0;
     int factorCuvant = 1;
 
     for (size_t i = 0; i < litere.length(); ++i) {
-        int xPos = x;
-        int yPos = y;
-
-        if (directie == Directie::Orizontal) {
-            xPos += i;
-        } else {
-            yPos += i;
-        }
+        int xPos = x + (directie == Directie::Orizontal ? i : 0);
+        int yPos = y + (directie == Directie::Vertical ? i : 0);
 
         const Celula& celula = tabla.getCelula(xPos, yPos);
-        int valoareLitera = 0; // You'll need a function to get letter values.
-        switch (litere[i]) {
-            // Assign point values to each letter (this is a simplified example)
-            case 'A': case 'E': case 'I': case 'O': case 'U': case 'L': case 'N': case 'S': case 'T': case 'R':
-                valoareLitera = 1; break;
-            case 'D': case 'G':
-                valoareLitera = 2; break;
-            case 'B': case 'C': case 'M': case 'P':
-                valoareLitera = 3; break;
-            case 'F': case 'H': case 'V': case 'W': case 'Y':
-                valoareLitera = 4; break;
-            case 'K':
-                valoareLitera = 5; break;
-            case 'J': case 'X':
-                valoareLitera = 8; break;
-            case 'Q': case 'Z':
-                valoareLitera = 10; break;
-            default:
-                valoareLitera = 0; // Handle blank tiles or invalid characters
-        }
-
+        int valoareLitera = getValoareLitera(litere[i]);
 
         if (celula.getEfectSpecial() == EfectSpecial::DubluLitera) {
             valoareLitera *= 2;
@@ -135,4 +106,25 @@ int Cuvant::calculeazaScor(const TablaScrabble& tabla) const {
     }
 
     return scor * factorCuvant;
+}
+
+int Cuvant::getValoareLitera(char litera) const {
+    switch (litera) {
+        case 'A': case 'E': case 'I': case 'O': case 'U': case 'L': case 'N': case 'S': case 'T': case 'R':
+            return 1;
+        case 'D': case 'G':
+            return 2;
+        case 'B': case 'C': case 'M': case 'P':
+            return 3;
+        case 'F': case 'H': case 'V': case 'W': case 'Y':
+            return 4;
+        case 'K':
+            return 5;
+        case 'J': case 'X':
+            return 8;
+        case 'Q': case 'Z':
+            return 10;
+        default:
+            return 0; // Handle blank tiles or invalid characters
+    }
 }

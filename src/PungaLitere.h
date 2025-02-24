@@ -1,3 +1,4 @@
+// src/PungaLitere.h
 #ifndef PUNGA_LITERE_H
 #define PUNGA_LITERE_H
 
@@ -15,7 +16,7 @@ public:
 
 private:
     std::vector<char> litere;
-    std::mt19937 generator; // Random number generator
+    std::mt19937 generator;
 };
 
 #endif

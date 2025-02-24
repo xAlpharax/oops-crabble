@@ -1,3 +1,4 @@
+// src/Tile.h
 #ifndef TILE_H
 #define TILE_H
 
@@ -11,12 +12,16 @@ public:
     void setPosition(float x, float y);
     sf::Vector2f getPosition() const;
     char getLetter() const;
-    void setLetter(char litera); // Added setLetter
+    void setLetter(char litera);
     bool isDragging() const;
     void setDragging(bool dragging);
-    bool contains(sf::Vector2f point) const; // Check if a point is within the tile
-    void setSize(float size); //Added set size
+    bool contains(sf::Vector2f point) const;
+    void setSize(float size);
     float getSize() const;
+    bool isPlacedOnBoard() const;
+    void setPlacedOnBoard(bool placed);
+    bool isPlaced() const;
+    void setPlaced(bool placed);
 
 
 private:
@@ -24,6 +29,8 @@ private:
     sf::RectangleShape shape;
     bool dragging;
     float size;
+    bool placedOnBoard;
+    void centerTextInTile(sf::Text& text) const;
 };
 
 #endif

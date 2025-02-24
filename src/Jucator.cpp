@@ -1,3 +1,4 @@
+// src/Jucator.cpp
 #include "Jucator.h"
 #include "PungaLitere.h"
 #include "TablaScrabble.h"
@@ -21,32 +22,31 @@ void Jucator::adaugaScor(int puncte) {
 
 bool Jucator::joacaCuvant(Cuvant cuvant, TablaScrabble& tabla) {
    if (!areLiterele(cuvant.getCuvant())) {
-        std::cerr << "Jucatorul " << nume << " nu are literele necesare." << std::endl;
+        std::cerr << "Jucatorul " << nume << " nu are literele necesare pentru cuvantul '" << cuvant.getCuvant() << "'." << std::endl;
         return false;
     }
 
-    if (!cuvant.verificaValiditate(tabla)) {
-        std::cerr << "Cuvantul nu este valid." << std::endl;
+    if (!tabla.verificaCuvant(cuvant)) {
+        std::cerr << "Cuvantul '" << cuvant.getCuvant() << "' nu este valid pe tabla." << std::endl;
         return false;
     }
 
     if (tabla.adaugaCuvant(cuvant)) {
         int puncte = cuvant.calculeazaScor(tabla);
         adaugaScor(puncte);
+        std::cout << "Jucatorul " << nume << " a jucat cuvantul '" << cuvant.getCuvant() << "' pentru " << puncte << " puncte." << std::endl;
         return true;
+    } else {
+        std::cerr << "Eroare la adaugarea cuvantului pe tabla." << std::endl;
+        return false;
     }
-
-    return false;
 }
 
 void Jucator::schimbaLitere(PungaLitere& punga) {
-    // Return the player's letters to the bag.
-    for (char litera : suport) {
-        punga.inlocuiesteLitere(suport);
-    }
-    tiles.clear(); // Clear old tiles
+    punga.inlocuiesteLitere(suport);
+    tiles.clear();
     suport.clear();
-    punga.distribuieLitere(suport, 7); // Assuming 7 is the hand size
+    punga.distribuieLitere(suport, 7);
 }
 
 void Jucator::adaugaLitera(char litera) {
@@ -59,55 +59,55 @@ void Jucator::scoateLitera(char litera) {
         suport.erase(it);
     }
 }
-std::vector<char>& Jucator::getSuport()
-{
+
+std::vector<char>& Jucator::getSuport() {
     return suport;
 }
 
 bool Jucator::areLiterele(const std::string& cuvant) const {
-    std::vector<char> tempSuport = suport; // Work with a copy
-    for (char litera : cuvant) {
-        auto it = std::find(tempSuport.begin(), tempSuport.end(), litera);
-        if (it == tempSuport.end()) {
-            return false; // Letter not found
+    std::vector<char> tempSuport = suport;
+    for (char literaCuvant : cuvant) {
+        bool found = false;
+        for (size_t i = 0; i < tempSuport.size(); ++i) {
+            if (tempSuport[i] == literaCuvant) {
+                tempSuport.erase(tempSuport.begin() + i);
+                found = true;
+                break;
+            }
         }
-        tempSuport.erase(it); // Remove the letter (to handle duplicates)
+        if (!found) {
+            return false;
+        }
     }
     return true;
 }
 
+
 std::vector<std::string> Jucator::sugereazaCuvinte(const std::unordered_set<std::string>& dictionar) const {
     std::vector<std::string> sugestii;
-    std::vector<char> tempSuport = suport;
+    std::string suportString(suport.begin(), suport.end());
+    std::sort(suportString.begin(), suportString.end());
 
     for (const std::string& cuvant : dictionar) {
-        bool posibil = true;
-        std::vector<char> temp = tempSuport; // Copy of player's letters
-
-        for (char litera : cuvant) {
-            auto it = std::find(temp.begin(), temp.end(), litera);
-            if (it == temp.end()) {
-                posibil = false;
-                break;
+        if (cuvant.length() <= suport.size()) {
+            std::string cuvantSortat = cuvant;
+            std::sort(cuvantSortat.begin(), cuvantSortat.end());
+            if (std::includes(suportString.begin(), suportString.end(), cuvantSortat.begin(), cuvantSortat.end())) {
+                 if (areLiterele(cuvant))
+                    sugestii.push_back(cuvant);
             }
-            temp.erase(it); // Remove letter *from the copy*
-        }
-
-        if (posibil) {
-            sugestii.push_back(cuvant);
         }
     }
     return sugestii;
 }
 
-// --- Drag-and-Drop Implementation ---
 
-void Jucator::initializeTiles(float startX, float startY, float tileSize) {
-    tiles.clear(); // Clear any existing tiles
+void Jucator::initializeTiles(float startX, float startY, float tileSize, float tileSpacing) {
+    tiles.clear();
     float x = startX;
     for (char litera : suport) {
         tiles.emplace_back(litera, x, startY, tileSize);
-        x += tileSize + 5; // Spacing between tiles
+        x += tileSize + tileSpacing;
     }
 }
 
@@ -127,25 +127,30 @@ Tile* Jucator::getTileAt(sf::Vector2f point) {
 }
 
 void Jucator::removeTile(Tile* tile) {
-    // Find and remove the tile from the 'tiles' vector.
-    auto it = std::find_if(tiles.begin(), tiles.end(), [&](const Tile& t) {
+    auto it = std::remove_if(tiles.begin(), tiles.end(), [&](const Tile& t) {
         return &t == tile;
     });
-    if (it != tiles.end()) {
-        tiles.erase(it);
+    tiles.erase(it, tiles.end());
+
+    for (size_t i = 0; i < suport.size(); ++i) {
+        if (suport[i] == tile->getLetter()) {
+            suport.erase(suport.begin() + i);
+            break;
+        }
     }
 }
+
 
 std::vector<Tile>& Jucator::getTiles() {
     return tiles;
 }
-void Jucator::resetTilesPositions(float startX, float startY, float tileSize)
-{
+
+void Jucator::resetTilesPositions(float startX, float startY, float tileSize, float tileSpacing) {
     float x = startX;
-    for (Tile& tile : tiles)
-    {
+    for (Tile& tile : tiles) {
         tile.setPosition(x, startY);
-        tile.setDragging(false); // Reset dragging state
-        x += tileSize + 5;
+        tile.setDragging(false);
+        tile.setPlacedOnBoard(false); // Reset placed on board status
+        x += tileSize + tileSpacing;
     }
 }

@@ -1,3 +1,4 @@
+// src/Jucator.h
 #ifndef JUCATOR_H
 #define JUCATOR_H
 
@@ -6,7 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include "Cuvant.h"
 #include <unordered_set>
-#include "Tile.h" // Include the Tile class
+#include "Tile.h"
 
 class PungaLitere;
 class TablaScrabble;
@@ -17,29 +18,27 @@ public:
     const std::string& getNume() const;
     int getScor() const;
     void adaugaScor(int puncte);
-    bool joacaCuvant(Cuvant cuvant, TablaScrabble& tabla); // Keep this for final validation
+    bool joacaCuvant(Cuvant cuvant, TablaScrabble& tabla);
     void schimbaLitere(PungaLitere& punga);
     void adaugaLitera(char litera);
     void scoateLitera(char litera);
-    //void afiseazaSuport(sf::RenderWindow& window, int x, int y) const; // Remove old display
     bool areLiterele(const std::string& cuvant) const;
-    std::vector<char>& getSuport(); // Keep for PungaLitere interaction
+    std::vector<char>& getSuport();
     std::vector<std::string> sugereazaCuvinte(const std::unordered_set<std::string>& dictionar) const;
 
-    // --- Drag-and-Drop Related ---
-    void initializeTiles(float startX, float startY, float tileSize); // Create Tile objects
+    void initializeTiles(float startX, float startY, float tileSize, float tileSpacing);
     void drawTiles(sf::RenderWindow& window) const;
-    Tile* getTileAt(sf::Vector2f point); // Find a tile at a given position
-    void removeTile(Tile* tile); // Remove a tile from the rack (after placing on board)
-    std::vector<Tile>& getTiles(); // Access the tiles directly
-    void resetTilesPositions(float startX, float startY, float tileSize); //Added reset tile positions
+    Tile* getTileAt(sf::Vector2f point);
+    void removeTile(Tile* tile);
+    std::vector<Tile>& getTiles();
+    void resetTilesPositions(float startX, float startY, float tileSize, float tileSpacing);
 
 
 private:
     std::string nume;
-    std::vector<char> suport; // Still keep the char vector for letter management
+    std::vector<char> suport;
     int scor;
-    std::vector<Tile> tiles; // Store Tile objects for display and interaction
+    std::vector<Tile> tiles;
 };
 
 #endif
