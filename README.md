@@ -24,7 +24,7 @@ If you press `Tab` you'll see a (maximum) top 20 list of valid words you can for
 
 ## Preview
 
-
+![2025-02-25 21:28:00](https://github.com/user-attachments/assets/e741e937-51b1-4cae-b265-42f1480f2c43)
 
 ## Contributing
 
