@@ -7,7 +7,7 @@ scrabble
 *.txt
 
 # EXTRA -> Font Files
-*.ttf
+#*.ttf
 
 # EXTRA -> Image Files
 *.png
