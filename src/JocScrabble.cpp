@@ -7,32 +7,32 @@
 // Constants for UI elements and game parameters
 namespace Constants {
     const float TileSize = 40.0f;
-    const float TileSpacing = 5.0f;
-    const float RackStartY = 600.0f;
-    const float RackStartX = 10.0f;
+    const float TileSpacing = 9.0f;
+    const float RackStartY = 609.0f;
+    const float RackStartX = 9.0f;
     const float ScoreDisplayStartY = 650.0f;
-    const float ScoreDisplaySpacing = 30.0f;
+    const float ScoreDisplaySpacing = 20.0f;
     const float ButtonWidth = 100.0f;
     const float ButtonHeight = 40.0f;
-    const float ButtonStartY = 10.0f; // Buttons at the top
+    const float ButtonStartY = 9.0f; // Buttons at the top
     const float ButtonStartX = 650.0f; // Buttons moved to the right side
     const float ButtonSpacingY = 50.0f; // Vertical spacing for buttons on the right
     const float SuggestionStartX = 600.0f;
-    const float SuggestionStartY = 300.0f;
-    const float SuggestionSpacing = 25.0f;
-    const int MaxSuggestionsDisplayed = 15;
+    const float SuggestionStartY = 202.0f;
+    const float SuggestionSpacing = 20.0f;
+    const int MaxSuggestionsDisplayed = 20;
     const int FontSizeSmall = 18;
     const int FontSizeMedium = 20;
     const int FontSizeLarge = 24;
     const sf::Color ButtonColor = sf::Color::Blue;
     const sf::Color ButtonTextColor = sf::Color::White;
-    const sf::Color SuggestionTextColor = sf::Color::Cyan;
+    const sf::Color SuggestionTextColor = sf::Color::Yellow;
     const sf::Color ScoreTextColor = sf::Color::White;
     const sf::Color CurrentWordTextColor = sf::Color::White;
-    const float CurrentWordTextStartX = 600.0f; // Start X for current word text on the right
-    const float CurrentWordTextStartY = 450.0f; // Y position for current word text, adjusted on right
-    const float MessageTextStartX = 600.0f; // Start X for message text on the right
-    const float MessageTextStartY = 500.0f; // Y position for message text, adjusted on right
+    const float CurrentWordTextStartX = 352.0f; // Start X for current word text on the right
+    const float CurrentWordTextStartY = 650.0f; // Y position for current word text, adjusted on right
+    const float MessageTextStartX = 352.0f; // Start X for message text on the right
+    const float MessageTextStartY = 670.0f; // Y position for message text, adjusted on right
 }
 
 JocScrabble::JocScrabble(int numarJucatori) :
@@ -294,7 +294,7 @@ void JocScrabble::renderGame(sf::RenderWindow& window) {
 }
 
 void JocScrabble::run() {
-    sf::RenderWindow window(sf::VideoMode(800, 700), "Scrabble");
+    sf::RenderWindow window(sf::VideoMode(800, 750), "Scrabble");
     incepeJoc();
     while (window.isOpen() && !gameOver) {
         sf::Event event;
